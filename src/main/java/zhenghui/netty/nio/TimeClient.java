@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Set;
 
 /**
  * User: zhenghui
@@ -35,11 +36,7 @@ public class TimeClient {
                 System.out.println("connect ok");
                 socketChannel.register(selector, SelectionKey.OP_READ);
                 //然后发送消息
-                String msg = "hello server";
-                ByteBuffer byteBuffer = ByteBuffer.allocate(msg.length());
-                byteBuffer.put(msg.getBytes());
-                byteBuffer.flip();
-                socketChannel.write(byteBuffer);
+                sendMessage(socketChannel);
             } else {
                 socketChannel.register(selector,SelectionKey.OP_CONNECT);
             }
@@ -48,16 +45,61 @@ public class TimeClient {
         }
     }
 
+    private void sendMessage(SocketChannel socketChannel) throws IOException {
+        String msg = "hello server";
+        ByteBuffer byteBuffer = ByteBuffer.allocate(msg.length());
+        byteBuffer.put(msg.getBytes());
+        byteBuffer.flip();
+        socketChannel.write(byteBuffer);
+    }
+
     private void proccess(){
         while (!stop){
             try {
                 //一秒钟轮询一次
                 selector.select(1000);
-                for(SelectionKey selectionKey : selector.selectedKeys()){
-
+                Set<SelectionKey> selectionKeySet = selector.selectedKeys();
+                for(SelectionKey selectionKey : selectionKeySet){
+                    handleSelectionKey(selectionKey);
                 }
+                selectionKeySet.clear();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+        if(selector != null){
+            try {
+                selector.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void handleSelectionKey(SelectionKey selectionKey) throws Exception {
+        if(selectionKey.isValid()){
+            SocketChannel socketChannel2 = (SocketChannel) selectionKey.channel();
+            if (selectionKey.isConnectable()){
+                //上面已经解释过，由于是异步的，所以在 connect的时候不一定马上能连接成功。
+                if(socketChannel2.finishConnect()){
+                    socketChannel2.register(selector,SelectionKey.OP_READ);
+                    sendMessage(socketChannel2);
+                } else {
+                    //连接失败，直接结束
+                    System.exit(1);
+                }
+            } else if(selectionKey.isReadable()){
+                ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+                int size = socketChannel2.read(byteBuffer);
+                if(size > 0){
+                    byteBuffer.flip();
+                    byte[] bytes = new byte[byteBuffer.remaining()];
+                    byteBuffer.get(bytes);
+                    System.out.println(new String(bytes));
+//                    this.stop = true;
+                } else if(size < 0){
+                    selectionKey.cancel();
+                    socketChannel2.close();
+                }
             }
         }
     }

@@ -54,6 +54,8 @@ public class TimeServer {
                         e.printStackTrace();
                     }
                 }
+                //处理完了记得清除
+                selectionKeySet.clear();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -81,7 +83,8 @@ public class TimeServer {
                 //如果是新的read请求,读取对应的消息，然后给客户端发送一个消息
                 SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
                 ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-                if(socketChannel.read(byteBuffer) > 0){
+                int size = socketChannel.read(byteBuffer);
+                if(size > 0){
                     byteBuffer.flip();
                     byte[] bytes = new byte[byteBuffer.remaining()];
                     byteBuffer.get(bytes);
@@ -92,7 +95,7 @@ public class TimeServer {
                     writeByteBuffer.put(msg.getBytes());
                     writeByteBuffer.flip();
                     socketChannel.write(writeByteBuffer);
-                } else {
+                } else if(size < 0) {
                     selectionKey.cancel();
                     socketChannel.close();
                 }
