@@ -20,15 +20,13 @@ public class TimeServer {
 
     private Selector selector;
 
-    private ServerSocketChannel serverSocketChannel;
-
     private volatile boolean stop = false;
 
     public TimeServer(int port) {
         try {
 
             selector = Selector.open();
-            serverSocketChannel = ServerSocketChannel.open();
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.configureBlocking(false);
             serverSocketChannel.socket().bind(new InetSocketAddress(port));
             //serverSocketChannel初始化完成以后，把自己注册到selector上去，监听 SelectionKey.OP_ACCEPT 事件
