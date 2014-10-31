@@ -21,7 +21,7 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
             private AsynchronousSocketChannel asynchronousSocketChannel;
 
             {
-                if(asynchronousSocketChannel != null){
+                if(asynchronousSocketChannel == null){
                     asynchronousSocketChannel = result;
                 }
             }
