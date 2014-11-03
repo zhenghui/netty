@@ -1,4 +1,4 @@
-package zhenghui.netty;
+package zhenghui.netty.firstdemo;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
