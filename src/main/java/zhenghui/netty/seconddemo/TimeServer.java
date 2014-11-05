@@ -1,4 +1,4 @@
-package zhenghui.netty.firstdemo;
+package zhenghui.netty.seconddemo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -9,12 +9,11 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 /**
  * User: zhenghui
- * Date:2014/11/2
- * Time:22:03
+ * Date: 2014年11月5日20:45:42
  * Email:jingbo2759@163.com
- * netty first demo
+ * netty second demo
  *
- * 没有解决半包问题
+ * 为了演示没有解决半包问题的影响
  */
 public class TimeServer {
 
