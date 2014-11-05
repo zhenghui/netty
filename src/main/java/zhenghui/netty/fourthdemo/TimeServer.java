@@ -1,4 +1,4 @@
-package zhenghui.netty.thirddemo;
+package zhenghui.netty.fourthdemo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -9,16 +9,17 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 
 /**
  * User: zhenghui
- * Date: 2014年11月5日20:45:42
+ * Date: 2014年11月5日21:57:04
  * Email:jingbo2759@163.com
  * netty second demo
  *
- * 使用LineBasedDecoder处理半包问题
- * 既然是line based 所以在消息体上肯定需要加上 \r\n 或者 \n
- * 这里可以发现，每次收到消息，我们都需要手动将ByteBuf 转换成String，这个我们可以通过StringDecoder的方式来改善。具体看第四个例子
+ * 使用LineBasedDecoder 和 StringDecoder来处理半包问题
+ * 既然使用了 StringDecoder ，那么ByteBuf 到 String的转换就不需要我们手工做了。
+ * 当然，这里只是自动转换成String,其实可转换的有很多，具体看 {@link io.netty.handler.codec} 包
  */
 public class TimeServer {
 
@@ -29,12 +30,13 @@ public class TimeServer {
         try{
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup,workerGroup).channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG,1024)
+                    .option(ChannelOption.SO_BACKLOG, 1024)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
 
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(new LineBasedFrameDecoder(1024));
+                            socketChannel.pipeline().addLast(new StringDecoder());
                             socketChannel.pipeline().addLast(new TimeServerHandler());
                         }
                     });
