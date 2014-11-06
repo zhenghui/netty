@@ -1,6 +1,8 @@
-package zhenghui.netty.fourthdemo;
+package zhenghui.netty.fivethdemo;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -8,23 +10,23 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 /**
  * User: zhenghui
- * Date: 2014年11月5日21:57:04
+ * Date: 2014年11月6日21:27:36
  * Email:jingbo2759@163.com
  * netty second demo
  *
- * 使用LineBasedDecoder 和 StringDecoder来处理半包问题
- * 既然使用了 StringDecoder ，那么ByteBuf 到 String的转换就不需要我们手工做了。
- * 当然，这里只是自动转换成String,其实可转换的有很多，具体看 {@link io.netty.handler.codec} 包
+ *  这个例子演示自定义的分隔符解码。最简单的，就是以：（分号）为分割
  *
- * LineBasedDecoder 只是分隔符解码器的一种，是用\n 或者\r\n 来分割，其实我们可以直接定义对应的分割符号
- * 具体就是使用DelimiterBasedFrameDecoder 具体看第五个例子
+ *  下一个例子演示定长解码
  */
 public class TimeServer {
+
+    public static final String SEMICOLON = ";";
 
     public static void main(String[] args) {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -38,7 +40,8 @@ public class TimeServer {
 
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new LineBasedFrameDecoder(1024));
+                            ByteBuf byteBuf = Unpooled.copiedBuffer(SEMICOLON.getBytes());
+                            socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024,byteBuf));
                             socketChannel.pipeline().addLast(new StringDecoder());
                             socketChannel.pipeline().addLast(new TimeServerHandler());
                         }
