@@ -22,7 +22,7 @@ import io.netty.handler.codec.string.StringDecoder;
  *
  *  这个例子演示自定义的分隔符解码。最简单的，就是以：（分号）为分割
  *
- *  下一个例子演示定长解码
+ *  自定义分隔符解码可以，当然定长的解码也是ok的。使用FixedLengthFrameDecoder 具体就不演示了
  */
 public class TimeServer {
 
