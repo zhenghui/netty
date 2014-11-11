@@ -1,4 +1,4 @@
-package zhenghui.netty.basedemo.thirddemo;
+package zhenghui.netty.basedemo.sixthdemo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -8,35 +8,37 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 /**
  * User: zhenghui
- * Date: 2014年11月5日20:45:42
+ * Date:2014/11/11
+ * Time:21:37
  * Email:jingbo2759@163.com
- * netty second demo
+ * 发送对象。序列化就用简单的java序列化
  *
- * 使用LineBasedDecoder处理半包问题
- * 既然是line based 所以在消息体上肯定需要加上 \r\n 或者 \n
- * 这里可以发现，每次收到消息，我们都需要手动将ByteBuf 转换成String，这个我们可以通过StringDecoder的方式来改善。具体看第四个例子
- * 下一节结束下如何发送序列化对象
  */
-public class TimeServer {
+public class MessageServer {
 
     public static void main(String[] args) {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        try{
+        try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup,workerGroup).channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG,1024)
+                    .option(ChannelOption.SO_BACKLOG,2014)
+                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
-
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new LineBasedFrameDecoder(1024));
-                            socketChannel.pipeline().addLast(new TimeServerHandler());
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(new ObjectDecoder(1024*1024, ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
+                            ch.pipeline().addLast(new ObjectEncoder());
+                            ch.pipeline().addLast(new MessageServerHandler());
                         }
                     });
             ChannelFuture channelFuture = serverBootstrap.bind(8001).sync();
