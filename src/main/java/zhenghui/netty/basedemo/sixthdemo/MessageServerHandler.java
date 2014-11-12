@@ -18,9 +18,9 @@ public class MessageServerHandler extends ChannelHandlerAdapter {
         Message message = (Message) msg;
         System.out.println(msg);
         Message tmp = new Message();
-        message.setMsg("hello client");
-        message.setMsgId((long) ++count);
-        ctx.writeAndFlush(ctx);
+        tmp.setMsg("hello client");
+        tmp.setMsgId((long) ++count);
+        ctx.writeAndFlush(tmp);
     }
 
 

@@ -28,6 +28,7 @@ public class MessageClient {
         try{
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workGroup).channel(NioSocketChannel.class)
+                    .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.SO_KEEPALIVE,true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override

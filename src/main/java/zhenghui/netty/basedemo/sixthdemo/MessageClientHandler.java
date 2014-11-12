@@ -17,7 +17,7 @@ public class MessageClientHandler extends ChannelHandlerAdapter{
             Message message = new Message();
             message.setMsg("hello server");
             message.setMsgId((long) i);
-            ctx.write(ctx);
+            ctx.write(message);
         }
         ctx.flush();
     }
