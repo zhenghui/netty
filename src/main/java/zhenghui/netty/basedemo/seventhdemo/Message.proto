@@ -1,0 +1,8 @@
+package netty;
+option java_package = "zhenghui.netty.basedemo.seventhdemo";
+option java_outer_classname = "Message";
+
+message MsgInfo{
+	required int64 msgId = 1;
+	required string msg = 2;
+}
